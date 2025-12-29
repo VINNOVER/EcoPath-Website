@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoPath - Plateforme de Slow-Travel</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #059669;
+            --primary-dark: #047857;
+            --secondary: #0ea5e9;
+            --accent: #10b981;
+        }
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        /* Animation pour le compteur CO2 */
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.8); }
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 2s infinite;
+        }
+        
+        /* Animation pour les confettis */
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(1000px) rotate(720deg); opacity: 0; }
+        }
+        
+        /* Transition pour les éléments du calculateur */
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+        
+        /* Style personnalisé pour le range slider */
+        input[type="range"] {
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(to right, #d1fae5, #10b981, #065f46);
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #10b981;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #10b981;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Animation pour les badges */
+        @keyframes badge-glow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .badge-glow {
+            animation: badge-glow 2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Header / Navigation -->
+    <header class="sticky top-0 z-50 bg-white shadow-md">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <!-- Logo -->
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-400 rounded-full flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">EP</span>
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-800 font-display">Eco<span class="text-emerald-600">Path</span></h1>
+                </div>
+                
+                <!-- Navigation desktop -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="#planificateur" class="font-medium hover:text-emerald-600 transition">Planificateur</a>
+                    <a href="#calculateur" class="font-medium hover:text-emerald-600 transition">Calculateur CO₂</a>
+                    <a href="#green-wallet" class="font-medium hover:text-emerald-600 transition">Green Wallet</a>
+                    <a href="#destinations" class="font-medium hover:text-emerald-600 transition">Destinations</a>
+                    <a href="#blog" class="font-medium hover:text-emerald-600 transition">Blog</a>
+                </nav>
+                
+                <!-- Boutons header -->
+                <div class="flex items-center space-x-4">
+                    <button class="hidden md:flex items-center space-x-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 transition">
+                        <i class="fas fa-coins"></i>
+                        <span id="token-count" class="font-bold">245</span>
+                        <span>tokens</span>
+                    </button>
+                    <button class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition font-medium">
+                        <i class="fas fa-user mr-2"></i>Mon compte
+                    </button>
+                    
+                    <!-- Menu mobile -->
+                    <button id="mobile-menu-button" class="md:hidden text-gray-600">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Menu mobile -->
+            <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4 border-t border-gray-100">
+                <div class="flex flex-col space-y-4 mt-4">
+                    <a href="#planificateur" class="font-medium hover:text-emerald-600 transition">Planificateur</a>
+                    <a href="#calculateur" class="font-medium hover:text-emerald-600 transition">Calculateur CO₂</a>
+                    <a href="#green-wallet" class="font-medium hover:text-emerald-600 transition">Green Wallet</a>
+                    <a href="#destinations" class="font-medium hover:text-emerald-600 transition">Destinations</a>
+                    <a href="#blog" class="font-medium hover:text-emerald-600 transition">Blog</a>
+                    <div class="pt-4 border-t border-gray-100">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-coins text-emerald-600"></i>
+                            <span id="token-count-mobile" class="font-bold">245</span>
+                            <span>tokens disponibles</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-cyan-50">
+        <!-- Arrière-plan décoratif -->
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-10 left-10 w-64 h-64 bg-emerald-300 rounded-full mix-blend-multiply filter blur-3xl"></div>
+            <div class="absolute bottom-10 right-10 w-64 h-64 bg-cyan-300 rounded-full mix-blend-multiply filter blur-3xl"></div>
+        </div>
+        
+        <div class="container mx-auto px-4 py-16 md:py-24 relative z-10">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex flex-col lg:flex-row items-center justify-between gap-12">
+                    <!-- Texte principal -->
+                    <div class="lg:w-1/2">
+                        <div class="inline-flex items-center px-4 py-2 rounded-full bg-emerald-100 text-emerald-800 mb-6">
+                            <i class="fas fa-leaf mr-2"></i>
+                            <span class="font-medium">Voyagez avec intention, réduisez avec impact</span>
+                        </div>
+                        
+                        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 font-display leading-tight">
+                            Redécouvrez le voyage,
+                            <span class="text-emerald-600">un kilomètre à la fois</span>
+                        </h1>
+                        
+                        <p class="text-xl text-gray-600 mb-8">
+                            EcoPath révolutionne votre façon de voyager. Planifiez des trajets bas-carbone, 
+                            visualisez votre impact en temps réel et gagnez des récompenses pour vos choix écoresponsables.
+                        </p>
+                        
+                        <!-- Indicateur de confiance -->
+                        <div class="bg-white rounded-xl p-4 shadow-lg mb-8 inline-flex items-center">
+                            <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-check text-emerald-600"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-800">✅ Déjà <span class="text-emerald-600">12,458 tonnes</span> de CO₂ économisées</p>
+                                <p class="text-sm text-gray-600">par notre communauté de voyageurs responsables</p>
+                            </div>
+                        </div>
+                        
+                        <!-- CTA Hero -->
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <a href="#calculateur" class="px-8 py-4 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition font-medium text-lg text-center shadow-lg hover:shadow-xl">
+                                <i class="fas fa-calculator mr-2"></i> Calculer mon empreinte
+                            </a>
+                            <a href="#green-wallet" class="px-8 py-4 bg-white text-emerald-700 border-2 border-emerald-600 rounded-xl hover:bg-emerald-50 transition font-medium text-lg text-center shadow hover:shadow-lg">
+                                <i class="fas fa-wallet mr-2"></i> Voir mon Green Wallet
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Calculateur intégré dans Hero -->
+                    <div class="lg:w-1/2">
+                        <div class="bg-white rounded-2xl shadow-2xl p-6 border border-emerald-100">
+                            <div class="flex items-center justify-between mb-6">
+                                <div>
+                                    <h3 class="text-2xl font-bold text-gray-800">Calculateur d'empreinte</h3>
+                                    <p class="text-gray-600 mt-1">Comparez l'impact de vos choix de transport</p>
+                                </div>
+                                <div class="bg-emerald-50 px-4 py-2 rounded-full">
+                                    <span class="text-emerald-700 font-semibold">Simulation rapide</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Formulaire simplifié -->
+                            <div class="space-y-6">
+                                <!-- Trajet -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Votre trajet</label>
+                                    <div class="flex space-x-3">
+                                        <input type="text" id="departure" placeholder="Paris" value="Paris" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-arrow-right text-emerald-600"></i>
+                                        </div>
+                                        <input type="text" id="arrival" placeholder="Barcelone" value="Barcelone" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                                    </div>
+                                </div>
+                                
+                                <!-- Mode de transport -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Mode de transport</label>
+                                    <div class="grid grid-cols-4 gap-2" id="transport-buttons">
+                                        <button data-mode="train" class="transport-btn active px-4 py-3 rounded-lg border-2 border-emerald-500 bg-emerald-50 text-emerald-700 font-medium">
+                                            🚆 Train
+                                        </button>
+                                        <button data-mode="plane" class="transport-btn px-4 py-3 rounded-lg border border-gray-300 hover:border-gray-400">
+                                            ✈️ Avion
+                                        </button>
+                                        <button data-mode="bus" class="transport-btn px-4 py-3 rounded-lg border border-gray-300 hover:border-gray-400">
+                                            🚌 Bus
+                                        </button>
+                                        <button data-mode="car" class="transport-btn px-4 py-3 rounded-lg border border-gray-300 hover:border-gray-400">
+                                            🚗 Voiture
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Résultat instantané -->
+                                <div class="bg-gradient-to-r from-emerald-50 to-cyan-50 rounded-xl p-6">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-gray-700 font-medium">Économies estimées</p>
+                                            <p class="text-sm text-gray-600">vs. voyage en avion</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p id="co2-saving" class="text-3xl font-bold text-emerald-700 pulse-glow p-2 rounded-lg">142 kg CO₂</p>
+                                            <p id="token-gain" class="text-emerald-600 font-medium">+142 tokens</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4">
+                                        <button id="calculate-full" class="w-full py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition font-medium">
+                                            <i class="fas fa-calculator mr-2"></i> Calculer en détail
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Calculateur CO2 détaillé -->
+    <section id="calculateur" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4 font-display">Calculateur d'empreinte carbone</h2>
+                    <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                        Visualisez en temps réel l'impact environnemental de vos choix de voyage
+                    </p>
+                </div>
+                
+                <!-- Calculateur complet -->
+                <div class="bg-white rounded-2xl shadow-2xl p-6 border border-emerald-100">
+                    <!-- En-tête -->
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800">Simulation détaillée</h3>
+                            <p class="text-gray-600 mt-1">Comparez l'impact de vos choix de transport</p>
+                        </div>
+                        <div class="bg-emerald-50 px-4 py-2 rounded-full">
+                            <span class="text-emerald-700 font-semibold">En temps réel</span>
+                        </div>
+                    </div>
+
+                    <!-- Formulaire de saisie -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                        <!-- Colonne gauche -->
+                        <div class="space-y-6">
+                            <!-- Trajet -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Votre trajet</label>
+                                <div class="flex space-x-3">
+                                    <input type="text" id="departure-detailed" placeholder="Départ" value="Paris" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-arrow-right text-emerald-600"></i>
+                                    </div>
+                                    <input type="text" id="arrival-detailed" placeholder="Arrivée" value="Barcelone" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                                </div>
+                            </div>
+                            
+                            <!-- Mode de transport détaillé -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Mode de transport</label>
+                                <div class="grid grid-cols-2 gap-3" id="transport-buttons-detailed">
+                                    <button data-mode="train" class="transport-btn-detailed active px-4 py-4 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-700 font-medium flex flex-col items-center">
+                                        <span class="text-2xl mb-2">🚆</span>
+                                        <span>Train</span>
+                                        <span class="text-xs text-emerald-600 mt-1">Recommandé</span>
+                                    </button>
+                                    <button data-mode="plane" class="transport-btn-detailed px-4 py-4 rounded-xl border border-gray-300 hover:border-gray-400 flex flex-col items-center">
+                                        <span class="text-2xl mb-2">✈️</span>
+                                        <span>Avion</span>
+                                    </button>
+                                    <button data-mode="bus" class="transport-btn-detailed px-4 py-4 rounded-xl border border-gray-300 hover:border-gray-400 flex flex-col items-center">
+                                        <span class="text-2xl mb-2">🚌</span>
+                                        <span>Bus</span>
+                                    </button>
+                                    <button data-mode="car" class="transport-btn-detailed px-4 py-4 rounded-xl border border-gray-300 hover:border-gray-400 flex flex-col items-center">
+                                        <span class="text-2xl mb-2">🚗</span>
+                                        <span>Voiture</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Passagers -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nombre de passagers</label>
+                                <div class="flex items-center space-x-4">
+                                    <button id="decrease-passengers" class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 text-xl hover:bg-emerald-200 transition">−</button>
+                                    <span id="passenger-count" class="text-3xl font-bold w-12 text-center">2</span>
+                                    <button id="increase-passengers" class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 text-xl hover:bg-emerald-200 transition">+</button>
+                                    <span class="text-gray-600 ml-4">≈ <span id="luggage-weight">450</span>kg de bagages</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Colonne droite -->
+                        <div class="space-y-6">
+                            <!-- Distance -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Distance estimée : <span id="distance-value" class="text-emerald-700 font-bold">650 km</span>
+                                </label>
+                                <input type="range" id="distance-slider" min="50" max="2000" value="650" step="10" class="w-full h-3 rounded-lg appearance-none cursor-pointer">
+                                <div class="flex justify-between text-sm text-gray-600 mt-2">
+                                    <span>50 km</span>
+                                    <span>1000 km</span>
+                                    <span>2000 km</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Équivalences -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-4">Votre impact en équivalences</label>
+                                <div class="grid grid-cols-3 gap-3">
+                                    <div class="text-center p-3 bg-emerald-50 rounded-xl">
+                                        <div class="text-2xl mb-1">🌳</div>
+                                        <p id="tree-equivalent" class="font-bold text-emerald-700">6.5 arbres</p>
+                                        <p class="text-xs text-gray-600">Absorption annuelle</p>
+                                    </div>
+                                    <div class="text-center p-3 bg-cyan-50 rounded-xl">
+                                        <div class="text-2xl mb-1">📱</div>
+                                        <p id="phone-equivalent" class="font-bold text-cyan-700">162,500 charges</p>
+                                        <p class="text-xs text-gray-600">De smartphone</p>
+                                    </div>
+                                    <div class="text-center p-3 bg-teal-50 rounded-xl">
+                                        <div class="text-2xl mb-1">🚗</div>
+                                        <p id="car-equivalent" class="font-bold text-teal-700">846 km</p>
+                                        <p class="text-xs text-gray-600">En voiture essence</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Badges disponibles -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Badges à gagner</label>
+                                <div class="flex flex-wrap gap-2">
+                                    <div class="px-3 py-1 bg-amber-50 text-amber-800 rounded-full text-sm border border-amber-200 badge-glow">
+                                        🏆 Éco-Explorateur
+                                    </div>
+                                    <div class="px-3 py-1 bg-purple-50 text-purple-800 rounded-full text-sm border border-purple-200">
+                                        🌍 Long-Courrier Vert
+                                    </div>
+                                    <div class="px-3 py-1 bg-red-50 text-red-800 rounded-full text-sm border border-red-200">
+                                        🦸 Héros Climatique
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Résultats en temps réel -->
+                    <div class="bg-gradient-to-r from-emerald-50 to-cyan-50 rounded-xl p-6 mb-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <h4 class="text-xl font-bold text-gray-800">Impact environnemental</h4>
+                            <div id="trip-grade" class="flex items-center bg-white px-4 py-2 rounded-full">
+                                <div class="w-3 h-3 rounded-full bg-emerald-500 mr-2"></div>
+                                <span class="text-sm font-medium">Notation A+</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Comparaison visuelle -->
+                        <div class="space-y-6">
+                            <!-- Votre choix -->
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center mr-4">
+                                        <span id="selected-transport-icon" class="text-white text-xl">🚆</span>
+                                    </div>
+                                    <div>
+                                        <p id="selected-transport-name" class="font-medium">Votre choix (Train)</p>
+                                        <p id="selected-transport-time" class="text-sm text-gray-600">Temps estimé: 4h20</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p id="selected-co2" class="text-2xl font-bold text-emerald-700">22.8 kg CO₂</p>
+                                    <p class="text-sm text-emerald-600">Émissions totales</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Comparaison Avion -->
+                            <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                                        <span class="text-xl">✈️</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">Équivalent en avion</p>
+                                        <p id="plane-time" class="text-sm text-gray-600">Temps estimé: 1h15</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p id="plane-co2" class="text-2xl font-bold text-red-600">185.3 kg CO₂</p>
+                                    <p id="co2-increase" class="text-sm text-red-500">+ 812% d'émissions</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Économies -->
+                            <div class="mt-6 p-6 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl">
+                                <div class="flex flex-col md:flex-row items-center justify-between text-white">
+                                    <div class="mb-4 md:mb-0">
+                                        <p class="font-bold text-xl">Vous économisez</p>
+                                        <p class="text-emerald-100">Grâce à votre choix éco-responsable</p>
+                                    </div>
+                                    <div class="text-center md:text-right">
+                                        <p id="total-co2-saved" class="text-4xl font-bold mb-1">162.5 kg CO₂</p>
+                                        <div class="flex items-center justify-center md:justify-end">
+                                            <i class="fas fa-coins text-amber-300 mr-2"></i>
+                                            <span class="text-amber-200 font-bold text-lg">+<span id="total-tokens-earned">162</span> tokens</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex flex-col sm:flex-row justify-between items-center pt-6 border-t border-gray-200">
+                        <div class="mb-4 sm:mb-0">
+                            <p class="text-gray-600">
+                                Ces économies seront ajoutées à votre 
+                                <a href="#green-wallet" class="font-bold text-emerald-700 hover:underline">Green Wallet</a>
+                            </p>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button id="share-impact" class="px-6 py-3 border-2 border-emerald-500 text-emerald-700 font-semibold rounded-lg hover:bg-emerald-50 transition">
+                                <i class="fas fa-share-alt mr-2"></i> Partager mon impact
+                            </button>
+                            <button id="plan-trip" class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-lg hover:opacity-90 transition shadow-lg">
+                                <i class="fas fa-train mr-2"></i> Planifier ce trajet
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Green Wallet Section -->
+    <section id="green-wallet" class="py-16 bg-gradient-to-b from-white to-emerald-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4 font-display">Green Wallet</h2>
+                    <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                        Votre portefeuille de récompenses écoresponsables. Gagnez des tokens pour chaque trajet bas-carbone et échangez-les contre des avantages exclusifs.
+                    </p>
+                </div>
+                
+                <!-- Wallet principal -->
+                <div class="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl shadow-2xl p-8 text-white mb-12">
+                    <div class="flex flex-col md:flex-row items-center justify-between">
+                        <div>
+                            <h3 class="text-2xl font-bold mb-2">Votre solde de tokens</h3>
+                            <p class="text-emerald-100">Utilisez vos tokens pour obtenir des réductions et soutenir des projets écologiques</p>
+                        </div>
+                        <div class="mt-6 md:mt-0 text-center">
+                            <div class="text-5xl font-bold mb-2" id="wallet-tokens">245</div>
+                            <p class="text-emerald-100">tokens disponibles</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Barre de progression -->
+                    <div class="mt-8">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span>Prochain palier : 500 tokens</span>
+                            <span id="progress-percentage">49%</span>
+                        </div>
+                        <div class="w-full bg-emerald-700 rounded-full h-3">
+                            <div id="progress-bar" class="bg-amber-400 h-3 rounded-full" style="width: 49%"></div>
+                        </div>
+                        <p class="text-emerald-100 text-sm mt-2">Atteignez 500 tokens pour débloquer une réduction de 10% chez nos partenaires</p>
+                    </div>
+                </div>
+                
+                <!-- Statistiques -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-leaf text-emerald-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-2xl font-bold text-gray-800" id="total-co2-saved-wallet">1,245 kg</p>
+                                <p class="text-gray-600">CO₂ économisé</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm">Équivalent à 49 arbres plantés</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-route text-amber-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-2xl font-bold text-gray-800" id="total-trips">7</p>
+                                <p class="text-gray-600">Trajets écoresponsables</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm">Moyenne de notation : A</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-award text-blue-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-2xl font-bold text-gray-800" id="total-badges">3</p>
+                                <p class="text-gray-600">Badges obtenus</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm">Dernier badge : Éco-Explorateur</p>
+                    </div>
+                </div>
+                
+                <!-- Récompenses disponibles -->
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">Échangez vos tokens</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-bed text-emerald-600"></i>
+                                </div>
+                                <span class="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-sm font-medium">150 tokens</span>
+                            </div>
+                            <h4 class="font-bold text-lg mb-2">Réduction hébergement éco</h4>
+                            <p class="text-gray-600 mb-4">10% de réduction chez nos partenaires éco-hébergements</p>
+                            <button class="w-full py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition font-medium">
+                                Échanger maintenant
+                            </button>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-train text-blue-600"></i>
+                                </div>
+                                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">200 tokens</span>
+                            </div>
+                            <h4 class="font-bold text-lg mb-2">Bon de réduction train</h4>
+                            <p class="text-gray-600 mb-4">15€ de réduction sur votre prochain billet de train</p>
+                            <button class="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
+                                Échanger maintenant
+                            </button>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-tree text-purple-600"></i>
+                                </div>
+                                <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">100 tokens</span>
+                            </div>
+                            <h4 class="font-bold text-lg mb-2">Planter un arbre</h4>
+                            <p class="text-gray-600 mb-4">Contribuez à la reforestation avec notre partenaire Reforest'Action</p>
+                            <button class="w-full py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium">
+                                Contribuer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Destinations -->
+    <section id="destinations" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4 font-display">Destinations populaires</h2>
+                    <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                        Découvrez des itinéraires de slow-travel soigneusement sélectionnés pour minimiser votre empreinte carbone
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Destination 1 -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition">
+                        <div class="relative h-48">
+                            <img src="https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="Paris à Amsterdam en train" class="w-full h-full object-cover">
+                            <div class="absolute top-4 right-4 bg-emerald-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fas fa-train mr-1"></i> Train
+                            </div>
+                            <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg">
+                                <p class="font-bold text-gray-800">Score Eco: <span class="text-emerald-600">A+</span></p>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-bold text-xl mb-2">Paris → Amsterdam</h3>
+                            <div class="flex items-center text-gray-600 mb-4">
+                                <i class="fas fa-clock mr-2"></i>
+                                <span>3h20 en train • 430 km</span>
+                            </div>
+                            <div class="flex justify-between items-center mb-4">
+                                <div>
+                                    <p class="text-sm text-gray-600">Économies CO₂</p>
+                                    <p class="font-bold text-emerald-700 text-lg">89 kg</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600">Récompense</p>
+                                    <p class="font-bold text-amber-600 text-lg">+89 tokens</p>
+                                </div>
+                            </div>
+                            <button class="w-full py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition font-medium">
+                                Voir l'itinéraire
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Destination 2 -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition">
+                        <div class="relative h-48">
+                            <img src="https://images.unsplash.com/photo-1583422409516-2895a77efded?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="Lyon à Barcelone en train" class="w-full h-full object-cover">
+                            <div class="absolute top-4 right-4 bg-emerald-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fas fa-train mr-1"></i> Train
+                            </div>
+                            <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg">
+                                <p class="font-bold text-gray-800">Score Eco: <span class="text-emerald-600">A</span></p>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-bold text-xl mb-2">Lyon → Barcelone</h3>
+                            <div class="flex items-center text-gray-600 mb-4">
+                                <i class="fas fa-clock mr-2"></i>
+                                <span>5h10 en train • 620 km</span>
+                            </div>
+                            <div class="flex justify-between items-center mb-4">
+                                <div>
+                                    <p class="text-sm text-gray-600">Économies CO₂</p>
+                                    <p class="font-bold text-emerald-700 text-lg">142 kg</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600">Récompense</p>
+                                    <p class="font-bold text-amber-600 text-lg">+142 tokens</p>
+                                </div>
+                            </div>
+                            <button class="w-full py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition font-medium">
+                                Voir l'itinéraire
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Destination 3 -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition">
+                        <div class="relative h-48">
+                            <img src="https://images.unsplash.com/photo-1601657678107-bc01c5c42c40?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="Berlin à Prague en train" class="w-full h-full object-cover">
+                            <div class="absolute top-4 right-4 bg-emerald-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fas fa-train mr-1"></i> Train
+                            </div>
+                            <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg">
+                                <p class="font-bold text-gray-800">Score Eco: <span class="text-emerald-600">A+</span></p>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-bold text-xl mb-2">Berlin → Prague</h3>
+                            <div class="flex items-center text-gray-600 mb-4">
+                                <i class="fas fa-clock mr-2"></i>
+                                <span>4h30 en train • 350 km</span>
+                            </div>
+                            <div class="flex justify-between items-center mb-4">
+                                <div>
+                                    <p class="text-sm text-gray-600">Économies CO₂</p>
+                                    <p class="font-bold text-emerald-700 text-lg">72 kg</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600">Récompense</p>
+                                    <p class="font-bold text-amber-600 text-lg">+72 tokens</p>
+                                </div>
+                            </div>
+                            <button class="w-full py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition font-medium">
+                                Voir l'itinéraire
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-12 pb-8">
+        <div class="container mx-auto px-4">
+            <div class="max-w-6xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                    <!-- Logo et description -->
+                    <div>
+                        <div class="flex items-center space-x-2 mb-4">
+                            <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-400 rounded-full flex items-center justify-center">
+                                <span class="text-white font-bold text-xl">EP</span>
+                            </div>
+                            <h2 class="text-2xl font-bold font-display">Eco<span class="text-emerald-400">Path</span></h2>
+                        </div>
+                        <p class="text-gray-400">
+                            Plateforme de slow-travel qui transforme vos voyages en actions positives pour la planète.
+                        </p>
+                    </div>
+                    
+                    <!-- Liens rapides -->
+                    <div>
+                        <h3 class="font-bold text-lg mb-4">Navigation</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#calculateur" class="text-gray-400 hover:text-emerald-400 transition">Calculateur CO₂</a></li>
+                            <li><a href="#green-wallet" class="text-gray-400 hover:text-emerald-400 transition">Green Wallet</a></li>
+                            <li><a href="#destinations" class="text-gray-400 hover:text-emerald-400 transition">Destinations</a></li>
+                            <li><a href="#blog" class="text-gray-400 hover:text-emerald-400 transition">Blog & Guides</a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Partenaires -->
+                    <div>
+                        <h3 class="font-bold text-lg mb-4">Partenaires</h3>
+                        <ul class="space-y-2">
+                            <li class="text-gray-400">SNCF</li>
+                            <li class="text-gray-400">Eurostar</li>
+                            <li class="text-gray-400">Reforest'Action</li>
+                            <li class="text-gray-400">Éco-Hébergements</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Newsletter -->
+                    <div>
+                        <h3 class="font-bold text-lg mb-4">Newsletter</h3>
+                        <p class="text-gray-400 mb-4">Recevez nos conseils de voyage écoresponsable</p>
+                        <div class="flex">
+                            <input type="email" placeholder="Votre email" class="flex-1 px-4 py-2 rounded-l-lg text-gray-900">
+                            <button class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 transition rounded-r-lg">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Copyright -->
+                <div class="pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
+                    <p>© 2023 EcoPath. Tous droits réservés. | <a href="#" class="hover:text-emerald-400 transition">Politique de confidentialité</a> | <a href="#" class="hover:text-emerald-400 transition">Conditions d'utilisation</a></p>
+                    <p class="mt-2">Fait avec <i class="fas fa-heart text-red-500"></i> pour la planète</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript pour l'interactivité -->
+    <script>
+        // Données pour les calculs
+        const emissionFactors = {
+            train: 0.035,    // kg CO₂/passager/km
+            plane: 0.285,    // kg CO₂/passager/km
+            bus: 0.105,      // kg CO₂/passager/km
+            car: 0.192       // kg CO₂/passager/km
+        };
+        
+        const travelTimes = {
+            train: 4.3,      // heures pour 650km
+            plane: 1.25,     // heures pour 650km (incluant transferts)
+            bus: 9.0,        // heures pour 650km
+            car: 6.5         // heures pour 650km
+        };
+        
+        const transportIcons = {
+            train: "🚆",
+            plane: "✈️",
+            bus: "🚌",
+            car: "🚗"
+        };
+        
+        const transportNames = {
+            train: "Train",
+            plane: "Avion",
+            bus: "Bus",
+            car: "Voiture"
+        };
+        
+        // Variables d'état
+        let currentTransport = "train";
+        let currentPassengers = 2;
+        let currentDistance = 650;
+        let userTokens = 245;
+        let totalCO2Saved = 1245;
+        let totalTrips = 7;
+        let totalBadges = 3;
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Menu mobile
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+            
+            // Gestion des boutons de transport (hero)
+            const transportButtons = document.querySelectorAll('.transport-btn');
+            transportButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Retirer la classe active de tous les boutons
+                    transportButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.classList.remove('border-emerald-500', 'bg-emerald-50', 'text-emerald-700');
+                        btn.classList.add('border', 'border-gray-300');
+                    });
+                    
+                    // Ajouter la classe active au bouton cliqué
+                    this.classList.add('active');
+                    this.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700');
+                    this.classList.remove('border', 'border-gray-300');
+                    
+                    // Mettre à jour le mode de transport
+                    currentTransport = this.getAttribute('data-mode');
+                    updateHeroCalculator();
+                });
+            });
+            
+            // Gestion des boutons de transport (calculateur détaillé)
+            const transportButtonsDetailed = document.querySelectorAll('.transport-btn-detailed');
+            transportButtonsDetailed.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Retirer la classe active de tous les boutons
+                    transportButtonsDetailed.forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.classList.remove('border-emerald-500', 'bg-emerald-50', 'text-emerald-700');
+                        btn.classList.add('border', 'border-gray-300');
+                    });
+                    
+                    // Ajouter la classe active au bouton cliqué
+                    this.classList.add('active');
+                    this.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700');
+                    this.classList.remove('border', 'border-gray-300');
+                    
+                    // Mettre à jour le mode de transport
+                    currentTransport = this.getAttribute('data-mode');
+                    updateDetailedCalculator();
+                });
+            });
+            
+            // Gestion du slider de distance
+            const distanceSlider = document.getElementById('distance-slider');
+            if (distanceSlider) {
+                distanceSlider.addEventListener('input', function() {
+                    currentDistance = parseInt(this.value);
+                    document.getElementById('distance-value').textContent = `${currentDistance} km`;
+                    updateDetailedCalculator();
+                });
+            }
+            
+            // Gestion des passagers
+            const decreasePassengersBtn = document.getElementById('decrease-passengers');
+            const increasePassengersBtn = document.getElementById('increase-passengers');
+            const passengerCount = document.getElementById('passenger-count');
+            
+            if (decreasePassengersBtn && increasePassengersBtn && passengerCount) {
+                decreasePassengersBtn.addEventListener('click', function() {
+                    if (currentPassengers > 1) {
+                        currentPassengers--;
+                        passengerCount.textContent = currentPassengers;
+                        updateLuggageWeight();
+                        updateDetailedCalculator();
+                    }
+                });
+                
+                increasePassengersBtn.addEventListener('click', function() {
+                    if (currentPassengers < 8) {
+                        currentPassengers++;
+                        passengerCount.textContent = currentPassengers;
+                        updateLuggageWeight();
+                        updateDetailedCalculator();
+                    }
+                });
+            }
+            
+            // Bouton "Calculer en détail"
+            const calculateFullBtn = document.getElementById('calculate-full');
+            if (calculateFullBtn) {
+                calculateFullBtn.addEventListener('click', function() {
+                    document.getElementById('calculateur').scrollIntoView({ behavior: 'smooth' });
+                });
+            }
+            
+            // Bouton "Partager mon impact"
+            const shareImpactBtn = document.getElementById('share-impact');
+            if (shareImpactBtn) {
+                shareImpactBtn.addEventListener('click', function() {
+                    alert("Fonctionnalité de partage à implémenter !\n\nVous économisez " + 
+                          document.getElementById('total-co2-saved').textContent + 
+                          " de CO₂ en choisissant le " + transportNames[currentTransport] + ".");
+                });
+            }
+            
+            // Bouton "Planifier ce trajet"
+            const planTripBtn = document.getElementById('plan-trip');
+            if (planTripBtn) {
+                planTripBtn.addEventListener('click', function() {
+                    alert(`Fonctionnalité de planification à implémenter !\n\nTrajet : ${document.getElementById('departure-detailed').value} → ${document.getElementById('arrival-detailed').value}\nTransport : ${transportNames[currentTransport]}\nDistance : ${currentDistance} km\nPassagers : ${currentPassengers}\n\nVous gagnerez ${document.getElementById('total-tokens-earned').textContent} tokens !`);
+                });
+            }
+            
+            // Initialiser les calculateurs
+            updateHeroCalculator();
+            updateDetailedCalculator();
+            updateWallet();
+        });
+        
+        // Mettre à jour le poids des bagages
+        function updateLuggageWeight() {
+            const avgLuggagePerPerson = 22.5; // kg
+            const totalLuggage = Math.round(currentPassengers * avgLuggagePerPerson * 10) / 10;
+            document.getElementById('luggage-weight').textContent = totalLuggage;
+        }
+        
+        // Mettre à jour le calculateur dans le hero
+        function updateHeroCalculator() {
+            // Calculer les émissions pour le mode choisi
+            const chosenEmissions = emissionFactors[currentTransport] * 650 * 2; // 650km, 2 passagers
+            
+            // Émissions équivalent avion
+            const planeEmissions = emissionFactors.plane * 650 * 2;
+            
+            // CO₂ économisé
+            const co2Saved = Math.max(0, planeEmissions - chosenEmissions);
+            
+            // Mettre à jour l'affichage
+            document.getElementById('co2-saving').textContent = Math.round(co2Saved) + " kg CO₂";
+            document.getElementById('token-gain').textContent = "+" + Math.round(co2Saved) + " tokens";
+        }
+        
+        // Mettre à jour le calculateur détaillé
+        function updateDetailedCalculator() {
+            // Calculer les émissions pour le mode choisi
+            const chosenEmissions = emissionFactors[currentTransport] * currentDistance * currentPassengers;
+            
+            // Émissions équivalent avion
+            const planeEmissions = emissionFactors.plane * currentDistance * currentPassengers;
+            
+            // CO₂ économisé
+            const co2Saved = Math.max(0, planeEmissions - chosenEmissions);
+            
+            // Calculer le pourcentage d'augmentation
+            const increasePercentage = chosenEmissions > 0 ? 
+                Math.round(((planeEmissions - chosenEmissions) / chosenEmissions) * 100) : 0;
+            
+            // Calculer les tokens (1 token = 1 kg CO₂ économisé)
+            let tokens = Math.round(co2Saved);
+            
+            // Multiplicateurs selon le mode de transport
+            const tokenMultipliers = {
+                train: 1.0,
+                plane: 0,
+                bus: 0.7,
+                car: 0.5
+            };
+            
+            tokens = Math.round(tokens * tokenMultipliers[currentTransport]);
+            
+            // Mettre à jour les équivalences
+            const treeEquivalent = (co2Saved / 25).toFixed(1);
+            const phoneEquivalent = Math.round(co2Saved * 1000).toLocaleString();
+            const carEquivalent = Math.round(co2Saved / 0.192);
+            
+            document.getElementById('tree-equivalent').textContent = treeEquivalent + " arbres";
+            document.getElementById('phone-equivalent').textContent = phoneEquivalent + " charges";
+            document.getElementById('car-equivalent').textContent = carEquivalent + " km";
+            
+            // Mettre à jour l'interface
+            document.getElementById('selected-transport-icon').textContent = transportIcons[currentTransport];
+            document.getElementById('selected-transport-name').textContent = `Votre choix (${transportNames[currentTransport]})`;
+            
+            // Temps de trajet
+            const timeFactor = currentDistance / 650;
+            const selectedTime = (travelTimes[currentTransport] * timeFactor).toFixed(1);
+            const planeTime = (travelTimes.plane * timeFactor).toFixed(1);
+            
+            document.getElementById('selected-transport-time').textContent = `Temps estimé: ${selectedTime}h`;
+            document.getElementById('plane-time').textContent = `Temps estimé: ${planeTime}h`;
+            
+            // Émissions
+            document.getElementById('selected-co2').textContent = chosenEmissions.toFixed(1) + " kg CO₂";
+            document.getElementById('plane-co2').textContent = planeEmissions.toFixed(1) + " kg CO₂";
+            
+            // Pourcentage d'augmentation
+            if (currentTransport === "plane") {
+                document.getElementById('co2-increase').textContent = "Référence";
+            } else {
+                document.getElementById('co2-increase').textContent = `+ ${increasePercentage}% d'émissions`;
+            }
+            
+            // Économies totales
+            document.getElementById('total-co2-saved').textContent = co2Saved.toFixed(1) + " kg CO₂";
+            document.getElementById('total-tokens-earned').textContent = tokens;
+            
+            // Notation du trajet
+            const co2PerKm = chosenEmissions / currentDistance;
+            const tripGradeElement = document.getElementById('trip-grade');
+            const gradeDot = tripGradeElement.querySelector('div');
+            
+            let grade = "F";
+            let gradeColor = "#ef4444"; // rouge
+            
+            if (co2PerKm < 0.05) {
+                grade = "A+";
+                gradeColor = "#10b981"; // vert émeraude
+            } else if (co2PerKm < 0.1) {
+                grade = "A";
+                gradeColor = "#10b981";
+            } else if (co2PerKm < 0.15) {
+                grade = "B";
+                gradeColor = "#f59e0b"; // orange
+            } else if (co2PerKm < 0.2) {
+                grade = "C";
+                gradeColor = "#f59e0b";
+            } else if (co2PerKm < 0.25) {
+                grade = "D";
+                gradeColor = "#ef4444"; // rouge
+            }
+            
+            gradeDot.style.backgroundColor = gradeColor;
+            tripGradeElement.querySelector('span').textContent = `Notation ${grade}`;
+        }
+        
+        // Mettre à jour le wallet
+        function updateWallet() {
+            // Mettre à jour les totaux
+            document.getElementById('wallet-tokens').textContent = userTokens;
+            document.getElementById('token-count').textContent = userTokens;
+            document.getElementById('token-count-mobile').textContent = userTokens;
+            
+            document.getElementById('total-co2-saved-wallet').textContent = totalCO2Saved.toLocaleString() + " kg";
+            document.getElementById('total-trips').textContent = totalTrips;
+            document.getElementById('total-badges').textContent = totalBadges;
+            
+            // Mettre à jour la barre de progression
+            const nextThreshold = 500;
+            const progressPercentage = Math.min(100, Math.round((userTokens / nextThreshold) * 100));
+            
+            document.getElementById('progress-percentage').textContent = `${progressPercentage}%`;
+            document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
+        }
+        
+        // Fonction pour créer des confettis (visuel)
+        function createConfetti() {
+            const confettiContainer = document.createElement('div');
+            confettiContainer.style.position = 'fixed';
+            confettiContainer.style.top = '0';
+            confettiContainer.style.left = '0';
+            confettiContainer.style.width = '100%';
+            confettiContainer.style.height = '100%';
+            confettiContainer.style.pointerEvents = 'none';
+            confettiContainer.style.zIndex = '9999';
+            document.body.appendChild(confettiContainer);
+            
+            // Créer 50 confettis
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'absolute';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.backgroundColor = getRandomColor();
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                confetti.style.top = '-20px';
+                confetti.style.left = `${Math.random() * 100}%`;
+                // Animation
+                confetti.style.animation = `confetti-fall ${2 + Math.random() * 3}s linear forwards`;
+                confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+                
+                confettiContainer.appendChild(confetti);
+                
+                // Supprimer après l'animation
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+            
+            // Supprimer le conteneur après l'animation
+            setTimeout(() => {
+                confettiContainer.remove();
+            }, 5000);
+        }
+        
+        function getRandomColor() {
+            const colors = ['#10b981', '#0ea5e9', '#8b5cf6', '#f59e0b', '#ef4444'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+    </script>
+</body>
+</html>
