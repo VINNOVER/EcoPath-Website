@@ -88,6 +88,133 @@
         .badge-glow {
             animation: badge-glow 2s infinite;
         }
+        
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+        
+        /* Timeline styles */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.6rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #10b981;
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 0.25rem;
+            width: 1.2rem;
+            height: 1.2rem;
+            border-radius: 50%;
+            background: #10b981;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #10b981;
+        }
+        
+        /* Map container */
+        .map-container {
+            height: 300px;
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .map-line {
+            position: absolute;
+            width: 80%;
+            height: 3px;
+            background: #10b981;
+            top: 50%;
+            left: 10%;
+        }
+        
+        .map-line::before, .map-line::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #10b981;
+        }
+        
+        .map-line::before {
+            left: 0;
+            top: -4.5px;
+        }
+        
+        .map-line::after {
+            right: 0;
+            top: -4.5px;
+        }
+        
+        .map-dot {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            border: 4px solid #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #065f46;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -149,6 +276,187 @@
             </div>
         </div>
     </header>
+
+    <!-- Modal pour afficher l'itinéraire -->
+    <div id="itinerary-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-6">
+                <!-- Header modal -->
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 id="modal-title" class="text-2xl font-bold text-gray-800"></h3>
+                        <p id="modal-subtitle" class="text-gray-600"></p>
+                    </div>
+                    <button id="close-modal" class="text-gray-500 hover:text-gray-700 text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <!-- Carte schématique -->
+                <div class="map-container mb-8">
+                    <div class="map-line"></div>
+                    <div class="map-dot" style="left: 10%; top: 50%; transform: translateY(-50%);">
+                        <span id="departure-dot">P</span>
+                    </div>
+                    <div class="map-dot" style="left: 30%; top: 30%;">
+                        <span id="stop1-dot">L</span>
+                    </div>
+                    <div class="map-dot" style="left: 50%; top: 70%;">
+                        <span id="stop2-dot">S</span>
+                    </div>
+                    <div class="map-dot" style="left: 70%; top: 20%;">
+                        <span id="stop3-dot">B</span>
+                    </div>
+                    <div class="map-dot" style="left: 90%; top: 50%; transform: translateY(-50%);">
+                        <span id="arrival-dot">B</span>
+                    </div>
+                </div>
+                
+                <!-- Détails du trajet -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-emerald-50 p-6 rounded-xl">
+                        <h4 class="font-bold text-lg mb-4 text-emerald-800">📊 Impact environnemental</h4>
+                        <div class="space-y-4">
+                            <div class="flex justify-between">
+                                <span>Émissions CO₂</span>
+                                <span id="modal-co2" class="font-bold text-emerald-700">22.8 kg</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Économies vs avion</span>
+                                <span id="modal-savings" class="font-bold text-emerald-700">162.5 kg</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Tokens gagnés</span>
+                                <span id="modal-tokens" class="font-bold text-amber-600">+162</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Score écologique</span>
+                                <span id="modal-grade" class="px-3 py-1 bg-emerald-600 text-white rounded-full text-sm font-medium">A+</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-6 rounded-xl">
+                        <h4 class="font-bold text-lg mb-4 text-blue-800">⏱️ Informations voyage</h4>
+                        <div class="space-y-4">
+                            <div class="flex justify-between">
+                                <span>Durée totale</span>
+                                <span id="modal-duration" class="font-bold text-blue-700">4h20</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Distance</span>
+                                <span id="modal-distance" class="font-bold text-blue-700">650 km</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Type de transport</span>
+                                <span id="modal-transport" class="font-bold text-blue-700">Train</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Coût estimé</span>
+                                <span id="modal-cost" class="font-bold text-blue-700">€85-€120</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Timeline de l'itinéraire -->
+                <div class="mb-8">
+                    <h4 class="font-bold text-lg mb-4 text-gray-800">🗺️ Itinéraire détaillé</h4>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h5 id="step1-title" class="font-bold text-gray-800">Départ de Paris Gare de Lyon</h5>
+                                    <span id="step1-time" class="text-sm font-medium text-emerald-700">09:00</span>
+                                </div>
+                                <p id="step1-desc" class="text-gray-600 text-sm">Embarquement dans le TGV 9805 direction Lyon</p>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h5 id="step2-title" class="font-bold text-gray-800">Arrivée à Lyon Part-Dieu</h5>
+                                    <span id="step2-time" class="text-sm font-medium text-emerald-700">11:05</span>
+                                </div>
+                                <p id="step2-desc" class="text-gray-600 text-sm">Correspondance de 25 minutes. Temps pour prendre un café.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h5 id="step3-title" class="font-bold text-gray-800">Train vers Perpignan</h5>
+                                    <span id="step3-time" class="text-sm font-medium text-emerald-700">11:30</span>
+                                </div>
+                                <p id="step3-desc" class="text-gray-600 text-sm">Train régional avec vues sur la campagne française.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h5 id="step4-title" class="font-bold text-gray-800">Arrivée à Barcelone-Sants</h5>
+                                    <span id="step4-time" class="text-sm font-medium text-emerald-700">13:20</span>
+                                </div>
+                                <p id="step4-desc" class="text-gray-600 text-sm">Bienvenue en Espagne ! Accès direct au métro.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Conseils éco -->
+                <div class="bg-gradient-to-r from-emerald-50 to-teal-50 p-6 rounded-xl mb-8">
+                    <h4 class="font-bold text-lg mb-4 text-emerald-800">💡 Conseils pour un voyage encore plus éco-responsable</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-utensils text-emerald-600 mt-1 mr-3"></i>
+                            <div>
+                                <h5 class="font-medium text-gray-800">Repas zéro-déchet</h5>
+                                <p class="text-sm text-gray-600">Préparez vos snacks dans des contenants réutilisables</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-bottle-water text-emerald-600 mt-1 mr-3"></i>
+                            <div>
+                                <h5 class="font-medium text-gray-800">Gourde réutilisable</h5>
+                                <p class="text-sm text-gray-600">Évitez les bouteilles en plastique à usage unique</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-suitcase-rolling text-emerald-600 mt-1 mr-3"></i>
+                            <div>
+                                <h5 class="font-medium text-gray-800">Bagage léger</h5>
+                                <p class="text-sm text-gray-600">Moins de poids = moins d'énergie consommée</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-leaf text-emerald-600 mt-1 mr-3"></i>
+                            <div>
+                                <h5 class="font-medium text-gray-800">Compensez votre trajet</h5>
+                                <p class="text-sm text-gray-600">Utilisez vos tokens pour planter des arbres</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-between items-center pt-6 border-t border-gray-200">
+                    <div class="mb-4 sm:mb-0">
+                        <p class="text-gray-600">Cet itinéraire sera sauvegardé dans <span class="font-bold text-emerald-700">Mes trajets</span></p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button id="modal-share" class="px-6 py-3 border-2 border-emerald-500 text-emerald-700 font-semibold rounded-lg hover:bg-emerald-50 transition">
+                            <i class="fas fa-share-alt mr-2"></i> Partager
+                        </button>
+                        <button id="modal-book" class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-lg hover:opacity-90 transition shadow-lg">
+                            <i class="fas fa-ticket-alt mr-2"></i> Réserver ce trajet
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Hero Section -->
     <section class="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-cyan-50">
@@ -633,10 +941,10 @@
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Destination 1 -->
+                    <!-- Destination 1 : Paris → Amsterdam -->
                     <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition">
                         <div class="relative h-48">
-                            <img src="https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="Paris à Amsterdam en train" class="w-full h-full object-cover">
+                            <img src="https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80" alt="Paris à Amsterdam en train" class="w-full h-full object-cover">
                             <div class="absolute top-4 right-4 bg-emerald-600 text-white px-3 py-1 rounded-full text-sm font-medium">
                                 <i class="fas fa-train mr-1"></i> Train
                             </div>
@@ -660,16 +968,16 @@
                                     <p class="font-bold text-amber-600 text-lg">+89 tokens</p>
                                 </div>
                             </div>
-                            <button class="w-full py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition font-medium">
+                            <button class="view-itinerary-btn w-full py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition font-medium" data-itinerary="paris-amsterdam">
                                 Voir l'itinéraire
                             </button>
                         </div>
                     </div>
                     
-                    <!-- Destination 2 -->
+                    <!-- Destination 2 : Lyon → Barcelone -->
                     <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition">
                         <div class="relative h-48">
-                            <img src="https://images.unsplash.com/photo-1583422409516-2895a77efded?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="Lyon à Barcelone en train" class="w-full h-full object-cover">
+                            <img src="https://images.unsplash.com/photo-1583422409516-2895a77efded?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80" alt="Lyon à Barcelone en train" class="w-full h-full object-cover">
                             <div class="absolute top-4 right-4 bg-emerald-600 text-white px-3 py-1 rounded-full text-sm font-medium">
                                 <i class="fas fa-train mr-1"></i> Train
                             </div>
@@ -693,16 +1001,16 @@
                                     <p class="font-bold text-amber-600 text-lg">+142 tokens</p>
                                 </div>
                             </div>
-                            <button class="w-full py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition font-medium">
+                            <button class="view-itinerary-btn w-full py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition font-medium" data-itinerary="lyon-barcelone">
                                 Voir l'itinéraire
                             </button>
                         </div>
                     </div>
                     
-                    <!-- Destination 3 -->
+                    <!-- Destination 3 : Berlin → Prague -->
                     <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition">
                         <div class="relative h-48">
-                            <img src="https://images.unsplash.com/photo-1601657678107-bc01c5c42c40?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="Berlin à Prague en train" class="w-full h-full object-cover">
+                            <img src="https://images.unsplash.com/photo-1601657678107-bc01c5c42c40?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80" alt="Berlin à Prague en train" class="w-full h-full object-cover">
                             <div class="absolute top-4 right-4 bg-emerald-600 text-white px-3 py-1 rounded-full text-sm font-medium">
                                 <i class="fas fa-train mr-1"></i> Train
                             </div>
@@ -726,7 +1034,7 @@
                                     <p class="font-bold text-amber-600 text-lg">+72 tokens</p>
                                 </div>
                             </div>
-                            <button class="w-full py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition font-medium">
+                            <button class="view-itinerary-btn w-full py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition font-medium" data-itinerary="berlin-prague">
                                 Voir l'itinéraire
                             </button>
                         </div>
@@ -827,6 +1135,146 @@
             plane: "Avion",
             bus: "Bus",
             car: "Voiture"
+        };
+        
+        // Base de données des itinéraires
+        const itineraries = {
+            "paris-amsterdam": {
+                title: "Paris → Amsterdam",
+                subtitle: "Itinéraire écologique en train Thalys",
+                departure: "Paris",
+                arrival: "Amsterdam",
+                stops: ["Paris", "Lille", "Bruxelles", "Amsterdam"],
+                distance: 430,
+                duration: "3h20",
+                transport: "Train",
+                co2: "19.2",
+                savings: "89",
+                tokens: "89",
+                grade: "A+",
+                cost: "€65-€95",
+                steps: [
+                    {
+                        title: "Départ de Paris Gare du Nord",
+                        time: "08:25",
+                        desc: "Embarquement dans le Thalys 9320 direction Amsterdam"
+                    },
+                    {
+                        title: "Arrêt à Lille Europe",
+                        time: "09:20",
+                        desc: "Arrêt technique de 3 minutes. Continuez à profiter du paysage"
+                    },
+                    {
+                        title: "Arrivée à Bruxelles-Midi",
+                        time: "09:55",
+                        desc: "Correspondance possible vers d'autres destinations belges"
+                    },
+                    {
+                        title: "Arrivée à Amsterdam Centraal",
+                        time: "11:45",
+                        desc: "Bienvenue aux Pays-Bas ! Accès direct aux tramways"
+                    }
+                ],
+                tips: [
+                    "Réservez à l'avance pour obtenir les meilleurs tarifs",
+                    "Profitez du wifi gratuit à bord pour travailler ou vous divertir",
+                    "Le train traverse de magnifiques paysages de campagne"
+                ]
+            },
+            "lyon-barcelone": {
+                title: "Lyon → Barcelone",
+                subtitle: "Itinéraire panoramique en train TGV + AVE",
+                departure: "Lyon",
+                arrival: "Barcelone",
+                stops: ["Lyon", "Perpignan", "Figueres", "Barcelone"],
+                distance: 620,
+                duration: "5h10",
+                transport: "Train",
+                co2: "28.7",
+                savings: "142",
+                tokens: "142",
+                grade: "A",
+                cost: "€85-€130",
+                steps: [
+                    {
+                        title: "Départ de Lyon Part-Dieu",
+                        time: "10:15",
+                        desc: "TGV 9805 direction Perpignan"
+                    },
+                    {
+                        title: "Traversée des Cévennes",
+                        time: "11:45",
+                        desc: "Vues spectaculaires sur les paysages montagneux"
+                    },
+                    {
+                        title: "Arrivée à Perpignan",
+                        time: "13:05",
+                        desc: "Correspondance de 35 minutes. Temps pour déjeuner"
+                    },
+                    {
+                        title: "Train AVE vers Barcelone",
+                        time: "13:40",
+                        desc: "Train à grande vitesse espagnol, très confortable"
+                    },
+                    {
+                        title: "Arrivée à Barcelone-Sants",
+                        time: "15:25",
+                        desc: "Bienvenue en Catalogne ! Accès au métro ligne 3 et 5"
+                    }
+                ],
+                tips: [
+                    "Prévoyez un pique-nique pour le trajet",
+                    "La vue sur la Méditerranée est magnifique après Perpignan",
+                    "Pensez à réserver vos billets TGV et AVE séparément"
+                ]
+            },
+            "berlin-prague": {
+                title: "Berlin → Prague",
+                subtitle: "Itinéraire historique en train EuroCity",
+                departure: "Berlin",
+                arrival: "Prague",
+                stops: ["Berlin", "Dresde", "Usti", "Prague"],
+                distance: 350,
+                duration: "4h30",
+                transport: "Train",
+                co2: "15.4",
+                savings: "72",
+                tokens: "72",
+                grade: "A+",
+                cost: "€45-€75",
+                steps: [
+                    {
+                        title: "Départ de Berlin Hauptbahnhof",
+                        time: "09:42",
+                        desc: "Train EuroCity 177 direction Prague"
+                    },
+                    {
+                        title: "Traversée de l'Elbe",
+                        time: "11:15",
+                        desc: "Paysages fluviaux magnifiques en Saxe"
+                    },
+                    {
+                        title: "Arrivée à Dresde",
+                        time: "11:48",
+                        desc: "Arrêt de 8 minutes dans la capitale de la Saxe"
+                    },
+                    {
+                        title: "Frontière tchèque",
+                        time: "12:35",
+                        desc: "Vous entrez en République Tchèque"
+                    },
+                    {
+                        title: "Arrivée à Prague hlavní nádraží",
+                        time: "14:12",
+                        desc: "Gare centrale de Prague, à proximité du centre-ville"
+                    }
+                ],
+                tips: [
+                    "Le train traverse la Suisse saxonne, un paysage classé à l'UNESCO",
+                    "Achetez vos billets en ligne pour éviter les frais de gare",
+                    "Prévoyez des couronnes tchèques pour les petits achats"
+                ]
+            }
         };
         
         // Variables d'état
@@ -951,7 +1399,53 @@
             const planTripBtn = document.getElementById('plan-trip');
             if (planTripBtn) {
                 planTripBtn.addEventListener('click', function() {
-                    alert(`Fonctionnalité de planification à implémenter !\n\nTrajet : ${document.getElementById('departure-detailed').value} → ${document.getElementById('arrival-detailed').value}\nTransport : ${transportNames[currentTransport]}\nDistance : ${currentDistance} km\nPassagers : ${currentPassengers}\n\nVous gagnerez ${document.getElementById('total-tokens-earned').textContent} tokens !`);
+                    const departure = document.getElementById('departure-detailed').value;
+                    const arrival = document.getElementById('arrival-detailed').value;
+                    showCustomItinerary(departure, arrival);
+                });
+            }
+            
+            // Boutons "Voir l'itinéraire" des destinations
+            const viewItineraryButtons = document.querySelectorAll('.view-itinerary-btn');
+            viewItineraryButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const itineraryId = this.getAttribute('data-itinerary');
+                    showItinerary(itineraryId);
+                });
+            });
+            
+            // Gestion de la modal
+            const modal = document.getElementById('itinerary-modal');
+            const closeModalBtn = document.getElementById('close-modal');
+            const modalShareBtn = document.getElementById('modal-share');
+            const modalBookBtn = document.getElementById('modal-book');
+            
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', function() {
+                    modal.classList.remove('active');
+                });
+            }
+            
+            // Fermer la modal en cliquant à l'extérieur
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+            
+            // Bouton Partager dans la modal
+            if (modalShareBtn) {
+                modalShareBtn.addEventListener('click', function() {
+                    const title = document.getElementById('modal-title').textContent;
+                    alert(`Partagez votre itinéraire "${title}" avec vos amis !\n\nFonctionnalité de partage social à implémenter.`);
+                });
+            }
+            
+            // Bouton Réserver dans la modal
+            if (modalBookBtn) {
+                modalBookBtn.addEventListener('click', function() {
+                    const title = document.getElementById('modal-title').textContent;
+                    alert(`Redirection vers la plateforme de réservation pour "${title}"\n\nCette fonctionnalité intégrera nos partenaires (SNCF, Eurostar, etc.)`);
                 });
             }
             
@@ -1096,6 +1590,198 @@
             document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
         }
         
+        // Afficher un itinéraire prédéfini
+        function showItinerary(itineraryId) {
+            const itinerary = itineraries[itineraryId];
+            if (!itinerary) return;
+            
+            // Mettre à jour le titre et sous-titre
+            document.getElementById('modal-title').textContent = itinerary.title;
+            document.getElementById('modal-subtitle').textContent = itinerary.subtitle;
+            
+            // Mettre à jour les stats
+            document.getElementById('modal-co2').textContent = itinerary.co2 + " kg";
+            document.getElementById('modal-savings').textContent = itinerary.savings + " kg";
+            document.getElementById('modal-tokens').textContent = "+" + itinerary.tokens;
+            document.getElementById('modal-grade').textContent = itinerary.grade;
+            document.getElementById('modal-duration').textContent = itinerary.duration;
+            document.getElementById('modal-distance').textContent = itinerary.distance + " km";
+            document.getElementById('modal-transport').textContent = itinerary.transport;
+            document.getElementById('modal-cost').textContent = itinerary.cost;
+            
+            // Mettre à jour les points sur la carte
+            const stops = itinerary.stops;
+            document.getElementById('departure-dot').textContent = stops[0].charAt(0);
+            document.getElementById('arrival-dot').textContent = stops[stops.length - 1].charAt(0);
+            
+            // Mettre à jour les étapes intermédiaires
+            if (stops.length > 2) {
+                for (let i = 1; i < stops.length - 1; i++) {
+                    const stopId = `stop${i}-dot`;
+                    const stopElement = document.getElementById(stopId);
+                    if (stopElement) {
+                        stopElement.textContent = stops[i].charAt(0);
+                        stopElement.style.display = 'flex';
+                    }
+                }
+            }
+            
+            // Cacher les points inutilisés
+            for (let i = stops.length - 1; i < 3; i++) {
+                const stopId = `stop${i+1}-dot`;
+                const stopElement = document.getElementById(stopId);
+                if (stopElement) {
+                    stopElement.style.display = 'none';
+                }
+            }
+            
+            // Mettre à jour la timeline
+            for (let i = 0; i < 4; i++) {
+                if (itinerary.steps[i]) {
+                    document.getElementById(`step${i+1}-title`).textContent = itinerary.steps[i].title;
+                    document.getElementById(`step${i+1}-time`).textContent = itinerary.steps[i].time;
+                    document.getElementById(`step${i+1}-desc`).textContent = itinerary.steps[i].desc;
+                    document.getElementById(`step${i+1}-title`).parentElement.parentElement.style.display = 'block';
+                } else {
+                    document.getElementById(`step${i+1}-title`).parentElement.parentElement.style.display = 'none';
+                }
+            }
+            
+            // Afficher la modal
+            document.getElementById('itinerary-modal').classList.add('active');
+        }
+        
+        // Afficher un itinéraire personnalisé
+        function showCustomItinerary(departure, arrival) {
+            // Générer un itinéraire basé sur les entrées utilisateur
+            const customItinerary = {
+                title: `${departure} → ${arrival}`,
+                subtitle: "Itinéraire personnalisé en train",
+                departure: departure,
+                arrival: arrival,
+                stops: [departure, "Lyon", "Perpignan", arrival],
+                distance: currentDistance,
+                duration: calculateDuration(currentDistance),
+                transport: transportNames[currentTransport],
+                co2: (emissionFactors[currentTransport] * currentDistance * currentPassengers).toFixed(1),
+                savings: (emissionFactors.plane * currentDistance * currentPassengers - emissionFactors[currentTransport] * currentDistance * currentPassengers).toFixed(1),
+                tokens: Math.round(emissionFactors.plane * currentDistance * currentPassengers - emissionFactors[currentTransport] * currentDistance * currentPassengers),
+                grade: calculateGrade(currentTransport, currentDistance, currentPassengers),
+                cost: calculateCost(currentDistance, currentTransport),
+                steps: [
+                    {
+                        title: `Départ de ${departure}`,
+                        time: "09:00",
+                        desc: `Embarquement dans le train direction ${arrival}`
+                    },
+                    {
+                        title: "Traversée des paysages régionaux",
+                        time: "10:30",
+                        desc: "Profitez de vues magnifiques depuis votre fenêtre"
+                    },
+                    {
+                        title: "Arrêt intermédiaire",
+                        time: "12:15",
+                        desc: "Correspondance ou pause technique"
+                    },
+                    {
+                        title: `Arrivée à ${arrival}`,
+                        time: calculateArrivalTime(currentDistance),
+                        desc: "Bienvenue à destination ! Accès aux transports locaux"
+                    }
+                ]
+            };
+            
+            // Mettre à jour le titre et sous-titre
+            document.getElementById('modal-title').textContent = customItinerary.title;
+            document.getElementById('modal-subtitle').textContent = customItinerary.subtitle;
+            
+            // Mettre à jour les stats
+            document.getElementById('modal-co2').textContent = customItinerary.co2 + " kg";
+            document.getElementById('modal-savings').textContent = customItinerary.savings + " kg";
+            document.getElementById('modal-tokens').textContent = "+" + customItinerary.tokens;
+            document.getElementById('modal-grade').textContent = customItinerary.grade;
+            document.getElementById('modal-duration').textContent = customItinerary.duration;
+            document.getElementById('modal-distance').textContent = customItinerary.distance + " km";
+            document.getElementById('modal-transport').textContent = customItinerary.transport;
+            document.getElementById('modal-cost').textContent = customItinerary.cost;
+            
+            // Mettre à jour les points sur la carte
+            const stops = customItinerary.stops;
+            document.getElementById('departure-dot').textContent = stops[0].charAt(0);
+            document.getElementById('arrival-dot').textContent = stops[stops.length - 1].charAt(0);
+            
+            // Mettre à jour la timeline
+            for (let i = 0; i < 4; i++) {
+                if (customItinerary.steps[i]) {
+                    document.getElementById(`step${i+1}-title`).textContent = customItinerary.steps[i].title;
+                    document.getElementById(`step${i+1}-time`).textContent = customItinerary.steps[i].time;
+                    document.getElementById(`step${i+1}-desc`).textContent = customItinerary.steps[i].desc;
+                    document.getElementById(`step${i+1}-title`).parentElement.parentElement.style.display = 'block';
+                } else {
+                    document.getElementById(`step${i+1}-title`).parentElement.parentElement.style.display = 'none';
+                }
+            }
+            
+            // Afficher la modal
+            document.getElementById('itinerary-modal').classList.add('active');
+        }
+        
+        // Fonctions utilitaires pour les itinéraires personnalisés
+        function calculateDuration(distance) {
+            if (distance < 200) return "1h30";
+            if (distance < 400) return "2h45";
+            if (distance < 600) return "4h10";
+            if (distance < 800) return "5h30";
+            return "7h00";
+        }
+        
+        function calculateArrivalTime(distance) {
+            if (distance < 300) return "11:30";
+            if (distance < 500) return "13:15";
+            if (distance < 700) return "15:45";
+            return "17:30";
+        }
+        
+        function calculateGrade(transport, distance, passengers) {
+            const emissions = emissionFactors[transport] * distance * passengers;
+            const co2PerKm = emissions / distance;
+            
+            if (co2PerKm < 0.05) return "A+";
+            if (co2PerKm < 0.1) return "A";
+            if (co2PerKm < 0.15) return "B";
+            if (co2PerKm < 0.2) return "C";
+            if (co2PerKm < 0.25) return "D";
+            return "F";
+        }
+        
+        function calculateCost(distance, transport) {
+            let costPerKm;
+            
+            switch(transport) {
+                case "train":
+                    costPerKm = 0.15;
+                    break;
+                case "plane":
+                    costPerKm = 0.25;
+                    break;
+                case "bus":
+                    costPerKm = 0.08;
+                    break;
+                case "car":
+                    costPerKm = 0.12;
+                    break;
+                default:
+                    costPerKm = 0.15;
+            }
+            
+            const baseCost = distance * costPerKm * currentPassengers;
+            const minCost = Math.round(baseCost * 0.7);
+            const maxCost = Math.round(baseCost * 1.3);
+            
+            return `€${minCost}-€${maxCost}`;
+        }
+        
         // Fonction pour créer des confettis (visuel)
         function createConfetti() {
             const confettiContainer = document.createElement('div');
@@ -1118,6 +1804,7 @@
                 confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
                 confetti.style.top = '-20px';
                 confetti.style.left = `${Math.random() * 100}%`;
+                
                 // Animation
                 confetti.style.animation = `confetti-fall ${2 + Math.random() * 3}s linear forwards`;
                 confetti.style.animationDelay = `${Math.random() * 0.5}s`;
